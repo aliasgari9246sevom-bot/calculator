@@ -1,4 +1,4 @@
-name: Build APK
+name: ساخت APK
 
 on:
   workflow_dispatch:
@@ -16,7 +16,7 @@ jobs:
         with:
           python-version: "3.11"
 
-      - name: نصب ابزارهای ساخت
+      - name: نصب ابزارهای لازم
         run: |
           sudo apt update
           sudo apt install -y git zip unzip openjdk-17-jdk autoconf automake libtool pkg-config zlib1g-dev libncurses-dev cmake libffi-dev libssl-dev
@@ -26,9 +26,15 @@ jobs:
       - name: ساخت برنامه
         run: |
           buildozer init
+
           sed -i 's/^title = .*/title = Calculator/' buildozer.spec
           sed -i 's/^package.name = .*/package.name = calculator/' buildozer.spec
           sed -i 's/^requirements = .*/requirements = python3,kivy/' buildozer.spec
+
+          mkdir -p "$HOME/.buildozer/android/platform/android-sdk/licenses"
+
+          yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --licenses || true
+
           buildozer -v android debug
 
       - name: ذخیره فایل APK
