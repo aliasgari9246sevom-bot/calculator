@@ -1,4 +1,4 @@
-name: Build APK
+name: ساخت APK
 
 on:
   workflow_dispatch:
@@ -9,17 +9,18 @@ jobs:
 
     steps:
       - name: دریافت کد
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: نصب پایتون
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: "3.11"
 
-      - name: نصب ابزارهای ساخت
+      - name: نصب ابزارهای لازم
         run: |
           sudo apt update
-          sudo apt install -y git zip unzip openjdk-17-jdk autoconf automake libtool pkg-config zlib1g-dev libncurses5-dev libtinfo5 cmake libffi-dev libssl-dev
+          sudo apt install -y git zip unzip openjdk-17-jdk autoconf automake libtool pkg-config zlib1g-dev libncurses-dev cmake libffi-dev libssl-dev
+
           pip install --upgrade pip
           pip install buildozer cython
 
@@ -29,6 +30,7 @@ jobs:
           sed -i 's/^title = .*/title = Calculator/' buildozer.spec
           sed -i 's/^package.name = .*/package.name = calculator/' buildozer.spec
           sed -i 's/^requirements = .*/requirements = python3,kivy/' buildozer.spec
+
           buildozer -v android debug
 
       - name: ذخیره فایل APK
