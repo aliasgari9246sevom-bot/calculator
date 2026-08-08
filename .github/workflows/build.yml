@@ -1,0 +1,38 @@
+name: Build APK
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: دریافت کد
+        uses: actions/checkout@v4
+
+      - name: نصب پایتون
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: نصب ابزارهای ساخت
+        run: |
+          sudo apt update
+          sudo apt install -y git zip unzip openjdk-17-jdk autoconf automake libtool pkg-config zlib1g-dev libncurses5-dev libtinfo5 cmake libffi-dev libssl-dev
+          pip install --upgrade pip
+          pip install buildozer cython
+
+      - name: ساخت برنامه
+        run: |
+          buildozer init
+          sed -i 's/^title = .*/title = Calculator/' buildozer.spec
+          sed -i 's/^package.name = .*/package.name = calculator/' buildozer.spec
+          sed -i 's/^requirements = .*/requirements = python3,kivy/' buildozer.spec
+          buildozer -v android debug
+
+      - name: ذخیره فایل APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: calculator-apk
+          path: bin/*.apk
